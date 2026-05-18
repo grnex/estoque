@@ -1,73 +1,87 @@
 import { randomUUID } from "node:crypto";
-import {sql} from './sql.js';
+import { sql } from './sql.js';
 import bcrypt from 'bcrypt';
 
-export class DatabasePostgres{
-    //users
-    async listUser(){
-        return await sql `SELECT * FROM users`;
+
+export class DatabasePostgres {
+
+
+    // ================= USERS =================
+    async listUsers() {
+        return await sql`SELECT * FROM users`;
     }
 
-    async createUser(users){
+
+    async createUser(user) {
         const id = randomUUID();
-        const {name, email, password, setor} = users;
-        const hash = await bcrypt.hash(password, 10);  
+        const { name, email, password, setor } = user;
+        const hash = await bcrypt.hash(password, 10);
+
 
         await sql`
-            INSERT INTO users (id, name, email, password, setor)
-            VALUES (${id}, ${name}, ${email}, ${hash}, ${setor});
+        INSERT INTO users (id, name, email, password, setor)
+        VALUES (${id}, ${name}, ${email}, ${hash}, ${setor})
         `;
     }
 
-    async findUserByEmail(email){
-        const result = await sql`
-            SELECT * FROM users WHERE email=${email}
-        `;
+
+    async findUserByEmail(email) {
+        const result = await sql`SELECT * FROM users WHERE email=${email}`;
         return result[0];
     }
 
-    //ITENS
-    async listItens(){
+
+    // ================= ITENS =================
+    async listItens() {
         return await sql`SELECT * FROM itens`;
     }
 
-    async createItem(item){
+
+    async createItem(item) {
         const id = randomUUID();
-        const {nome,descricao} = item;
+        const { nome, descricao } = item;
+
 
         await sql`
-            INSERT INTO itens (id, nome,descricao)
-            VALUES (${id}, ${nome}, ${descricao})
+        INSERT INTO itens (id, nome, descricao)
+        VALUES (${id}, ${nome}, ${descricao})
         `;
     }
 
-    async updateItemStatus(id, status){
+
+    async updateItemStatus(id, status) {
         await sql`
-            UPDATE itens SET status=${status} WHERE id=${id}
+        UPDATE itens SET status=${status} WHERE id=${id}
         `;
     }
 
-    //Movimentações
-    async registrarMovimentacao({tipo, usuario_id, item_id}){
+
+    // ================= MOVIMENTAÇÃO =================
+    async registrarMovimentacao({ tipo, usuario_id, item_id }) {
         const id = randomUUID();
 
+
         await sql`
-            INSERT INTO movimentacoes(id, tipo, usuario_id, item_id)
-            VALUES (${id}, ${tipo}, ${usuario_id}, ${item_id})
+        INSERT INTO movimentacoes (id, tipo, usuario_id, item_id)
+        VALUES (${id}, ${tipo}, ${usuario_id}, ${item_id})
         `;
     }
 
-    async listMovimentacoes(){
+
+    async listMovimentacoes() {
         return await sql`
-            SELECT
-                m.id,
-                m.tipo,
-                m.data,
-                u.name as usuario,
-                i.nome as item
-            FROM movimentacoes m 
-            JOIN users u ON u.id = m.usuario_id
-            JOIN itens i ON i.id = m.item_id ORDER BY  m.data DESC
+        SELECT
+            m.id,
+            m.tipo,
+            m.data,
+            u.name as usuario,
+            i.nome as item
+        FROM movimentacoes m
+        JOIN users u ON u.id = m.usuario_id
+        JOIN itens i ON i.id = m.item_id
+        ORDER BY m.data DESC
         `;
     }
 }
+
+
