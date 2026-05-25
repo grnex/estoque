@@ -5,11 +5,13 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext)
 
 export const AuthProvider = ({ children }) =>{
-    const [ token, setToken] = useState(localStorage.getItem(token))
+    const [ token, setToken] = useState(localStorage.getItem("token"));
+
     const login = async(email, password, navigate) =>{
         try{
             const res = await api.post("/auth/login", {email, password});
             localStorage.setItem("token", res.data.token);
+            setToken(res.data.token);
             navigate("/itens"); //redireciona após login
         }catch(err){
             alert(err.response?.data?.msg || "Erro no login");
